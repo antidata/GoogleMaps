@@ -7,16 +7,18 @@
   </head>
   <body class="lift:content_id=main">
     <div id="main" class="lift:surround?with=default;at=content">
-      <h2>Click on the map to put markers, and click on them to see the infowindow</h2>
+      <h2>Click on the map to put markers, and click on them to see the infowindow. <br/> Click on Track Locations button to see the action</h2>
       <p>
 	<span class="lift:helloWorld">
 	  Welcome to your Lift app at <span id="time">Time goes here</span>
-        <div id="map_div" style="height:400px;width:400px"></div>
+        <div id="map_div" style="height:400px;width:600px"></div>
 	</span>
       </p>
       <div class="lift:helloWorld.setRectangle">
         <button id="setRectangle">Set Rectangle</button>
+        <button onclick="pageFunctions.setLocation(null)">Track locations</button>
      </div>
+    <div>
   </body>
 </html>
 

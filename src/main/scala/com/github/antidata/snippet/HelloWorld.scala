@@ -17,7 +17,7 @@ package com.github.antidata.snippet
 # Copyright M. Lucchetta - 2013
   */
 
-import scala.xml.{NodeSeq, Text}
+import scala.xml._
 import net.liftweb.util._
 import net.liftweb.common._
 import java.util.Date
@@ -25,18 +25,48 @@ import com.github.antidata.lib._
 import Helpers._
 import net.liftweb.http.js.JsCmd
 import net.liftweb.http.js.JsCmds._
-import net.liftweb.http.SHtml
+import net.liftweb.http._
 import com.github.antidata.GoogleMaps._
+import net.liftweb.json.JsonAST.JValue
+import com.github.antidata.GoogleMaps.Options
+import com.github.antidata.GoogleMaps.Position
+import com.github.antidata.GoogleMaps.Marker
+import com.github.antidata.GoogleMaps.Rectangle
 import com.github.antidata.GoogleMaps.Listener
+import com.github.antidata.GoogleMaps.LatLngBounds
 import com.github.antidata.GoogleMaps.Location
+import com.github.antidata.GoogleMaps.InfoWindow
+import com.github.antidata.GoogleMaps.Title
+import com.github.antidata.GoogleMaps.Content
+import net.liftweb.http.js.JE.JsRaw
 
 class HelloWorld {
-  lazy val date: Box[Date] = DependencyFactory.inject[Date] // inject the date
-
+  def date: Box[Date] = DependencyFactory.inject[Date] // inject the date
+  lazy val markerId = "followup"
   def render() : NodeSeq = {
-    GoogleMapsManager SetMap(MapExamples.map, MapExamples.markers,
-      List(Listener(MapExamples.map, EventClick, mapClick _)))
+    val mapDef = (GoogleMapsManager SetMap(MapExamples.map, MapExamples.markers,
+      List(Listener(MapExamples.map, EventClick, mapClick _))))
+
+    val functions = ((for {
+      session <- S.session
+    } yield <lift:tail>{Script(JsRaw(s"var ${markerId} = null; var pageFunctions = "+
+      session.buildRoundtrip(pageFunctions).toJsCmd).cmd)}</lift:tail>) openOr NodeSeq.Empty)
+
+    mapDef ++ functions
   }
+  object followLoc extends RequestVar[Box[FollowLocations]](Empty)
+
+  private def setLocation(value : JValue, func: RoundTripHandlerFunc) {
+    followLoc.is match {
+      case Empty =>
+        val actor = new FollowLocations()
+        followLoc(Full(actor))
+        actor ! NextLocation(MapExamples.followLocations, Empty, MapExamples.map.id, func, markerId)
+      case _ =>
+    }
+  }
+
+  val pageFunctions : List[RoundTripInfo] = List("setLocation" -> setLocation _)
 
   // Here we get the coordinates of the map where the user has recently clicked
   private def mapClick(s : String) : JsCmd = {

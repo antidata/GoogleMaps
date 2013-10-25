@@ -25,6 +25,7 @@ import net.liftweb.http.js.JsCmds._
 import net.liftweb.actor.LiftActor
 import scala.Predef._
 import net.liftweb.common.Full
+import net.liftweb.http.{S, RequestVar, RoundTripHandlerFunc}
 
 object MapExamples {
   val locations = List(Location(40.744715, -74.0046), Location(40.75684, -73.9966))
@@ -49,18 +50,17 @@ object MapExamples {
     Location(40.75989601311333, -73.97429466247559)
   )
 }
-
+case class NextLocation(loc : List[Location], prev : Box[Marker], map : String, func : RoundTripHandlerFunc, markerId : String)
 class FollowLocations extends LiftActor {
-  case class NextLocation(loc : List[Location], prev : Box[Marker], map : String)
-
   override def messageHandler = {
-    case NextLocation(l, prev, map) =>
+    case NextLocation(l, prev, map, func, markerId) =>
       l match {
         case h::t =>
-          val newMark = Marker(map, Options(Position(h)))
-          Schedule.schedule(this, NextLocation(t, Full(newMark), map), 5 seconds)
-          (prev match {case Full(m) => m.removeMarker case _ => JsCmds.Noop}) & newMark
-        case _ => JsCmds.Noop
+          val newMark = Marker(map, Options(Position(h)), markerId)
+          Schedule.schedule(this, NextLocation(t, Full(newMark), map, func, markerId), 3 seconds)
+          func.send((prev match {case Full(m) => m.removeMarker case _ => JsCmds.Noop}) & newMark)
+        case _ =>
+          func.send(JsCmds.Alert("End of Tracking!"))
       }
   }
 }

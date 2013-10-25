@@ -2,7 +2,7 @@ name := "Lift API for GoogleMaps"
 
 version := "0.5"
 
-organization := "net.liftweb"
+organization := "com.github.antidata"
 
 scalaVersion := "2.10.2"
 
@@ -18,7 +18,7 @@ unmanagedResourceDirectories in Test <+= (baseDirectory) { _ / "src/main/webapp"
 scalacOptions ++= Seq("-deprecation", "-unchecked")
 
 libraryDependencies ++= {
-  val liftVersion = "2.5.1"
+  val liftVersion = "3.0-SNAPSHOT"
   Seq(
     "net.liftweb"       %% "lift-webkit"        % liftVersion        % "compile",
     "net.liftweb"       %% "lift-mapper"        % liftVersion        % "compile",

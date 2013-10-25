@@ -61,9 +61,16 @@ case class Map(elemId: String, options: Options) extends JsExp with MapEntity {
 }
 
 // Marker to put on the Map
-case class Marker(mapVar: String, options: Options) extends MapIndicator with JsExp with MapEntity {
-  override lazy val toJsCmd = s"var ${id} = new google.maps.Marker(${options.toJsCmd}); ${id}.setMap(${mapVar})"
-  lazy val removeMarker: JsCmd = JsRaw(s"${id}.setMap(null)").cmd
+case class Marker(mapVar: String, options: Options, optionalId : String = "") extends MapIndicator with JsExp with MapEntity {
+  lazy val finalId = if(optionalId != "") optionalId else id
+  override lazy val toJsCmd = {
+    val instance = s"${finalId} = new google.maps.Marker(${options.toJsCmd}); ${finalId}.setMap(${mapVar})"
+    optionalId match {
+      case "" => s"var ${instance}"
+      case _ => instance
+    }
+  }
+  lazy val removeMarker: JsCmd = JsRaw(s"${finalId}.setMap(null)").cmd
 }
 
 // Options of the Map
