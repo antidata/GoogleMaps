@@ -18,9 +18,8 @@ package com.github.antidata.GoogleMaps
 */
 
 import net.liftweb.util.Props
-import net.liftweb.json.JsonAST.{JArray, JString, JValue}
+import net.liftweb.json.JsonAST.JValue
 import net.liftweb.json.{DefaultFormats, JsonParser}
-import net.liftweb.http.RoundTripHandlerFunc
 import com.twitter.finagle.http._
 import com.twitter.finagle.http.Http
 import org.jboss.netty.handler.codec.http._
@@ -28,7 +27,7 @@ import com.twitter.util.Future
 import com.twitter.finagle.ServiceFactory
 import com.twitter.finagle.builder.ClientBuilder
 import com.twitter.conversions.time._
-import net.liftweb.json.JsonDSL._
+import net.liftweb.common.{Empty, Box}
 
 trait GoogleMapsServicesConfig {
   val AutocompleteUrl: String = Props.get("autocompleteurl", "maps.googleapis.com:443")
@@ -67,7 +66,7 @@ case class PlaceDetails(result: DetailsResult, status: String)
 
 object GoogleMapsServicesManager extends GoogleMapsServicesConfig {
 
-  val clientt : ServiceFactory[HttpRequest, HttpResponse] = ClientBuilder()
+  val autocompleteClient : ServiceFactory[HttpRequest, HttpResponse] = ClientBuilder()
     .codec(Http())
     .tcpConnectTimeout(5.seconds)
     .hosts(AutocompleteUrl)
@@ -75,7 +74,7 @@ object GoogleMapsServicesManager extends GoogleMapsServicesConfig {
     .requestTimeout(55.seconds).tls("maps.googleapis.com").tlsWithoutValidation()
     .buildFactory()
 
-  val clientDet : ServiceFactory[HttpRequest, HttpResponse] = ClientBuilder()
+  val detailsClient : ServiceFactory[HttpRequest, HttpResponse] = ClientBuilder()
     .codec(Http())
     .tcpConnectTimeout(5.seconds)
     .hosts(PlaceDetailsUrl)
@@ -89,57 +88,47 @@ object GoogleMapsServicesManager extends GoogleMapsServicesConfig {
     def apply(r: String) = JsonParser.parse(r)
   }
 
-  def GetPlaces(search : String, func : RoundTripHandlerFunc) {
-    val inputOption = UrlOption("input", search)
-    try{
-    val newReq = RequestBuilder().url("https://maps.googleapis.com"+s"/maps/api/place/autocomplete/json?${UrlOptionsToString(inputOption :: StandardUrlOptions)}").buildGet()
-    val client = clientt()()
+  def GetPlaces[A](search : String, successFunc : PredictionsResult => A, failureFunc : Box[Throwable => A]= Empty) {
+    val inputOption = UrlOption("input", search.replace(" ", "+"))
+
+    val url = s"https://maps.googleapis.com"+s"/maps/api/place/autocomplete/json?${UrlOptionsToString(inputOption :: StandardUrlOptions)}"
+
+    val newReq = RequestBuilder().url(url).buildGet()
+    val client = autocompleteClient()()
     val response: Future[HttpResponse] = client(newReq)
 
     response onSuccess { resp: HttpResponse =>
       implicit val formats = DefaultFormats
       val json = asJson(resp.getContent.toString("UTF-8")).extract[PredictionsResult]
-      func.send(JArray(json.predictions.map(p => ("name" -> p.description) ~ ("ref" -> p.reference)).toList))
+      successFunc(json)
       client.close()
     }
 
-    response onFailure { ex =>
+    response onFailure { ex : Throwable =>
+      failureFunc map(_(ex))
       client.close()
     }
-    } catch {
-      case ex=> println(ex)
-    }
-
   }
 
-  def GetGeolocations(search : String, func : RoundTripHandlerFunc) {
+  def GetGeolocations[A](search : String, successFunc : PlaceDetails => A, failureFunc : Box[Throwable => A]= Empty) {
     val inputOption = UrlOption("reference", search)
-    val newReq = RequestBuilder().url(s"https://maps.googleapis.com/maps/api/place/details/json?${UrlOptionsToString(List(ApiKey, SensorFalse, inputOption))}").buildGet()
+    val url = s"https://maps.googleapis.com/maps/api/place/details/json?${UrlOptionsToString(List(ApiKey, SensorFalse, inputOption))}"
 
-    val client = clientDet()()
+    val newReq = RequestBuilder().url(url).buildGet()
+
+    val client = detailsClient()()
     val response: Future[HttpResponse] = client(newReq)
 
     response onSuccess { resp: HttpResponse =>
       implicit val formats = DefaultFormats
       val json = asJson(resp.getContent.toString("UTF-8")).extract[PlaceDetails]
-      func.send(JArray(json.result.address_components.map(s => JString(s.short_name)).toList))
+      successFunc(json)
       client.close()
     }
 
-    response onFailure { ex =>
+    response onFailure { ex : Throwable =>
+      failureFunc map(_(ex))
       client.close()
     }
   }
-/*
-  def GetGeolocations(reference: String) = {
-    val inputOption = UrlOption("reference", reference)
-    val svc = url(PlaceDetailsUrl + UrlOptionsToString(List(ApiKey, SensorFalse, inputOption)))
-    val json: Promise[JValue] = Http(svc > asJson)
-    json.onComplete(e => println(e.right))
-    implicit val formats = DefaultFormats
-    val res = json.map(_.extract[PlaceDetails])()
-    println(res)
-    res
-  }
-  */
 }

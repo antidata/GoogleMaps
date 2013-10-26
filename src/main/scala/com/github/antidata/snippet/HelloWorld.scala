@@ -67,13 +67,26 @@ class HelloWorld {
   }
 
   private def findPlaces(value : JValue, func : RoundTripHandlerFunc) {
+
+    def sendJArrayToBrowser(pred : PredictionsResult) : Unit = {
+      import net.liftweb.json.JsonDSL._
+      func.send(JArray(pred.predictions.map(p => ("name" -> p.description) ~ ("ref" -> p.reference)).toList))
+    }
+
     val ter = value.values.toString
-    GoogleMapsServicesManager.GetPlaces(ter, func)
+    GoogleMapsServicesManager.GetPlaces(ter, sendJArrayToBrowser)
   }
 
   private def getDetails(value : JValue, func : RoundTripHandlerFunc) {
+
+    def sendDetailsToBrowser(json : PlaceDetails) : Unit = {
+      import net.liftweb.json.JsonDSL._
+      func.send(JArray(List(
+        ("address" -> JString(json.result.formatted_address)) ~
+        ("components" -> JArray(json.result.address_components.map(s => JString(s.long_name)).toList)))))
+    }
     val ter = value.values.toString
-    GoogleMapsServicesManager.GetGeolocations(ter, func)
+    GoogleMapsServicesManager.GetGeolocations(ter, sendDetailsToBrowser)
   }
 
   val pageFunctions : List[RoundTripInfo] = List("setLocation" -> setLocation _, "findPlaces" -> findPlaces _, "placeDetail" -> getDetails _)

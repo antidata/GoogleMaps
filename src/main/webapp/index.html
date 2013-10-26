@@ -23,15 +23,35 @@
     </div>
 
     <div class='container-fluid' ng-controller="TypeaheadCtrl">
+        <div class="span3">
         <input type="text" ng-model="selected" typeahead-wait-ms="300" typeahead="k for k in getList($viewValue)">
-        <ul class="unstyled">
-            <li ng-repeat="res in lista">
-                <a ng-click="placeDet(&quot;{{res.ref}}&quot;)">{{res.name}}</a>
-            </li>
-        </ul>
-        <div ng-repeat="d in det">
-            <span>{{d}}</span>
+            <ul class="unstyled">
+                <li ng-repeat="res in lista">
+                    <a ng-click="placeDet(res.ref)">{{res.name}}</a>
+                </li>
+            </ul>
         </div>
+        <div class="container-fluid" ng-repeat="d in placedetail">
+            <div class="row-fluid">
+                <div class="span3">
+                    <h3>Address</h3>
+                    <div ng-repeat="d in placedetail">
+                        <span>{{d.address}}</span>
+                    </div>
+                </div>
+                <div class="span3">
+                    <h3>Components</h3>
+                    <div ng-repeat="d in placedetail">
+                        <div ng-repeat="comp in d.components">
+                            <span>{{comp}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
     </div>
 
 

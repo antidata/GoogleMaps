@@ -3,7 +3,7 @@ function TypeaheadCtrl($scope) {
 
   $scope.selected = undefined;
   $scope.lista = [];
-  $scope.det = [];
+  $scope.placedetail = [];
 
 
   $scope.getList = function(term) {
@@ -23,7 +23,7 @@ function TypeaheadCtrl($scope) {
 
     return promise.then(function(data) {
       $scope.$apply(function() {
-        $scope.det = data;
+        $scope.placedetail = data;
       })
       return data;
     });
