@@ -13,6 +13,7 @@ import mapper._
 
 import net.liftmodules.JQueryModule
 import com.github.antidata.model.User
+import com.github.antidata.GoogleMaps.GoogleMapsServicesManager
 
 
 /**
@@ -76,5 +77,7 @@ class Boot {
 
     // Make a transaction span the whole HTTP request
     S.addAround(DB.buildLoanWrapper)
+
+    GoogleMapsServicesManager.init
   }
 }

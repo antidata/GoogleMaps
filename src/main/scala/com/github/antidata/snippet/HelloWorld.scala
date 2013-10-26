@@ -27,7 +27,7 @@ import net.liftweb.http.js.JsCmd
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.http._
 import com.github.antidata.GoogleMaps._
-import net.liftweb.json.JsonAST.JValue
+import net.liftweb.json.JsonAST.{JString, JArray, JValue}
 import com.github.antidata.GoogleMaps.Options
 import com.github.antidata.GoogleMaps.Position
 import com.github.antidata.GoogleMaps.Marker
@@ -66,7 +66,17 @@ class HelloWorld {
     }
   }
 
-  val pageFunctions : List[RoundTripInfo] = List("setLocation" -> setLocation _)
+  private def findPlaces(value : JValue, func : RoundTripHandlerFunc) {
+    val ter = value.values.toString
+    GoogleMapsServicesManager.GetPlaces(ter, func)
+  }
+
+  private def getDetails(value : JValue, func : RoundTripHandlerFunc) {
+    val ter = value.values.toString
+    GoogleMapsServicesManager.GetGeolocations(ter, func)
+  }
+
+  val pageFunctions : List[RoundTripInfo] = List("setLocation" -> setLocation _, "findPlaces" -> findPlaces _, "placeDetail" -> getDetails _)
 
   // Here we get the coordinates of the map where the user has recently clicked
   private def mapClick(s : String) : JsCmd = {
