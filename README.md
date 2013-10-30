@@ -13,6 +13,8 @@ and the examples are WIP
 
 https://github.com/antidata/GoogleMaps/blob/master/src/main/scala/com/github/antidata/GoogleMaps/GoogleMapsExamples.scala
 
+Example Snippet: https://github.com/antidata/GoogleMaps/blob/master/src/main/scala/com/github/antidata/snippet/HelloWorld.scala
+
 Clone: 
 git clone https://github.com/antidata/GoogleMaps.git
 
