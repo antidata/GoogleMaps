@@ -52,7 +52,7 @@ object SensorTrue extends UrlOption("sensor", "true")
 object SensorFalse extends UrlOption("sensor", "false")
 
 // Here we load the api key, additional keys can be defined
-object ApiKey extends UrlOption("key", Props.get("mapsApiKey", /*"YourKeyHereOrInPropFile"*/"AIzaSyCHcbjBs0ijkzKDGc-mKV0w6DCR_b1kaAY"))
+object ApiKey extends UrlOption("key", Props.get("mapsApiKey", "YourKeyHereOrInPropFile"))
 
 case class Prediction(description: String, id: String, reference: String, types: List[String])
 
