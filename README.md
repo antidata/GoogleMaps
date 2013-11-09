@@ -16,6 +16,9 @@ and the examples are WIP
 Example Snippet: 
 * https://github.com/antidata/GoogleMaps/blob/master/src/main/scala/com/github/antidata/snippet/HelloWorld.scala
 
+Working example:
+* http://gmaps.reserbar.cloudbees.net/
+
 Clone: 
 * git clone https://github.com/antidata/GoogleMaps.git
 
