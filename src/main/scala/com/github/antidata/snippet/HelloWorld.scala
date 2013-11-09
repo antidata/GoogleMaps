@@ -91,8 +91,6 @@ class HelloWorld {
     GoogleMapsServicesManager.GetGeolocations(ter, sendDetailsToBrowser)
   }
 
-  //private def setCenter()
-
   val pageFunctions : List[RoundTripInfo] = List("setLocation" -> setLocation _, "findPlaces" -> findPlaces _, "placeDetail" -> getDetails _)
 
   // Here we get the coordinates of the map where the user has recently clicked
