@@ -1,33 +1,40 @@
 package com.github.antidata.GoogleMaps
 
 /**
-# This file is part of Lift GoogleMaps Integration. Lift GoogleMaps Integration is free software: you can
-# redistribute it and/or modify it under the terms of the GNU General Public
-# License as published by the Free Software Foundation, version 2.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
-# details.
-#
-# You should have received a copy of the GNU General Public License along with
-# this program; if not, write to the Free Software Foundation, Inc., 51
-# Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#
-# Copyright M. Lucchetta - 2013
+* This file is part of Lift GoogleMaps Integration. Lift GoogleMaps Integration is free software: you can
+* redistribute it and/or modify it under the terms of the GNU General Public
+* License as published by the Free Software Foundation, version 2.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+* FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+* details.
+*
+* You should have received a copy of the GNU General Public License along with
+* this program; if not, write to the Free Software Foundation, Inc., 51
+* Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*
+* Copyright M. Lucchetta - 2013
 */
 
 import scala.xml.NodeSeq
-import net.liftweb.http.js.JsCmds.{SetExp, OnLoad, JsCrVar, Script}
-import net.liftweb.http.js.JE.{JsRaw, Str}
+import net.liftweb.http.js.JsCmds._
 import net.liftweb.http.js.JsCmd
 import scala.util.parsing.combinator._
 import net.liftweb.common.{Box, Empty, Full}
+import net.liftweb.http.js.JsCmds.SetExp
+import net.liftweb.http.js.JsCmds.JsCrVar
+import net.liftweb.http.js.JE.Str
+import net.liftweb.http.js.JE.JsRaw
 
 /**
  * This manager will create the NodeSeq and JScript to put on the page
  */
 object GoogleMapsManager {
+  private val emptyJsCmd = JsRaw("").cmd
+
+  private def makeCmd(js : JsCmd, elem : JsCmd) : JsCmd = CmdPair(js, elem)
+
   /**
    * Create the map nodeseq to put in the html
    * @param map The Map that will appear in the page
@@ -37,11 +44,8 @@ object GoogleMapsManager {
    * @return NodeSeq to manage the map and ajax calls
    */
   def SetMap(map: Map, markers: List[Marker], listeners: List[Listener], assign : String*): NodeSeq = {
-    {
-      Script(JsCrVar(map.id, Str("")))
-    } ++ {
-      Script(OnLoad(generate(map, markers, assign:_*) & listeners.foldLeft(JsRaw("").cmd)((res, list) => res & list)))
-    }
+    Script(JsCrVar(map.id, Str(""))) ++
+      Script(OnLoad(generate(map, markers, assign:_*) & listeners.foldLeft(emptyJsCmd)(makeCmd)))
   }
 
   /**
@@ -52,9 +56,10 @@ object GoogleMapsManager {
    * @return Js to set the map on the page
    */
   private def generate(map: Map, mkrs: List[Marker], assign : String*): JsCmd = {
-    SetExp(JsRaw(map.options.id), map.options) & SetExp(JsRaw(map.id), map) &
-      mkrs.foldLeft(JsRaw("").cmd)((res, mark) => res & mark.cmd) &
-      assign.foldLeft(JsRaw("").cmd)((res, _var) => res & SetExp(JsRaw(_var),JsRaw(map.id)))
+    SetExp(JsRaw(map.options.id), map.options) &
+      SetExp(JsRaw(map.id), map) &
+      mkrs.foldLeft(emptyJsCmd)(makeCmd) &
+      assign.foldLeft(emptyJsCmd)((res, _var) => makeCmd(res, SetExp(JsRaw(_var),JsRaw(map.id))))
   }
 }
 

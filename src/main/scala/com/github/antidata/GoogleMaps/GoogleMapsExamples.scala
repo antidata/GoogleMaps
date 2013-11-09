@@ -1,31 +1,30 @@
 package com.github.antidata.GoogleMaps
 
 /**
-# This file is part of Lift GoogleMaps Integration. Lift GoogleMaps Integration is free software: you can
-# redistribute it and/or modify it under the terms of the GNU General Public
-# License as published by the Free Software Foundation, version 2.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
-# details.
-#
-# You should have received a copy of the GNU General Public License along with
-# this program; if not, write to the Free Software Foundation, Inc., 51
-# Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#
-# Copyright M. Lucchetta - 2013
+* This file is part of Lift GoogleMaps Integration. Lift GoogleMaps Integration is free software: you can
+* redistribute it and/or modify it under the terms of the GNU General Public
+* License as published by the Free Software Foundation, version 2.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+* FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+* details.
+*
+* You should have received a copy of the GNU General Public License along with
+* this program; if not, write to the Free Software Foundation, Inc., 51
+* Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*
+* Copyright M. Lucchetta - 2013
 */
 
 import net.liftweb.util._
 import Helpers._
-import net.liftweb.common.{Empty, Box}
+import net.liftweb.common.Box
 import net.liftweb.http.js.JsCmds
-import net.liftweb.http.js.JsCmds._
 import net.liftweb.actor.LiftActor
 import scala.Predef._
 import net.liftweb.common.Full
-import net.liftweb.http.{S, RequestVar, RoundTripHandlerFunc}
+import net.liftweb.http.RoundTripHandlerFunc
 
 object MapExamples {
   val locations = List(Location(40.744715, -74.0046), Location(40.75684, -73.9966))
