@@ -58,6 +58,7 @@ class MapConstant(val value: String)
 // Map represents the map instance to be placed in the html with the required options
 case class Map(elemId: String, options: Options) extends JsExp with MapEntity {
   override lazy val toJsCmd = s"""new google.maps.Map(document.getElementById("${elemId}"), ${options.id});"""
+  def setCenter(loc : Location) : JsCmd = JsRaw(s"${id}.setCenter(${loc}});").cmd
 }
 
 // Marker to put on the Map

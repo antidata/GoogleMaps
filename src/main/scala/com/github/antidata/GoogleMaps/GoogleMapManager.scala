@@ -33,13 +33,14 @@ object GoogleMapsManager {
    * @param map The Map that will appear in the page
    * @param markers The markers to be included in the map
    * @param listeners Listeners to be included in the page
+   * @param assign When we need to assign the map instance to other variables
    * @return NodeSeq to manage the map and ajax calls
    */
-  def SetMap(map: Map, markers: List[Marker], listeners: List[Listener]): NodeSeq = {
+  def SetMap(map: Map, markers: List[Marker], listeners: List[Listener], assign : String*): NodeSeq = {
     {
       Script(JsCrVar(map.id, Str("")))
     } ++ {
-      Script(OnLoad(generate(map, markers) & listeners.foldLeft(JsRaw("").cmd)((res, list) => res & list)))
+      Script(OnLoad(generate(map, markers, assign:_*) & listeners.foldLeft(JsRaw("").cmd)((res, list) => res & list)))
     }
   }
 
@@ -47,10 +48,13 @@ object GoogleMapsManager {
    * Creates the JsExp required to set the map on the page and its markers
    * @param map The map to be placed in the page
    * @param mkrs Markers to be placed in the map
+   * @param assign When we need to assign the map instance to other variables
    * @return Js to set the map on the page
    */
-  private def generate(map: Map, mkrs: List[Marker]): JsCmd = {
-    SetExp(JsRaw(map.options.id), map.options) & SetExp(JsRaw(map.id), map) & mkrs.foldLeft(JsRaw("").cmd)((res, mark) => res & mark.cmd)
+  private def generate(map: Map, mkrs: List[Marker], assign : String*): JsCmd = {
+    SetExp(JsRaw(map.options.id), map.options) & SetExp(JsRaw(map.id), map) &
+      mkrs.foldLeft(JsRaw("").cmd)((res, mark) => res & mark.cmd) &
+      assign.foldLeft(JsRaw("").cmd)((res, _var) => res & SetExp(JsRaw(_var),JsRaw(map.id)))
   }
 }
 

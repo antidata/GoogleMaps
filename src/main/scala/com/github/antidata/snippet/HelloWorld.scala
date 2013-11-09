@@ -27,7 +27,7 @@ import net.liftweb.http.js.JsCmd
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.http._
 import com.github.antidata.GoogleMaps._
-import net.liftweb.json.JsonAST.{JString, JArray, JValue}
+import net.liftweb.json.JsonAST.{JDouble, JString, JArray, JValue}
 import com.github.antidata.GoogleMaps.Options
 import com.github.antidata.GoogleMaps.Position
 import com.github.antidata.GoogleMaps.Marker
@@ -45,11 +45,11 @@ class HelloWorld {
   lazy val markerId = "followup"
   def render() : NodeSeq = {
     val mapDef = (GoogleMapsManager SetMap(MapExamples.map, MapExamples.markers,
-      List(Listener(MapExamples.map, EventClick, mapClick _))))
+      List(Listener(MapExamples.map, EventClick, mapClick _)), "mapInstance"))
 
     val functions = ((for {
       session <- S.session
-    } yield <lift:tail>{Script(JsRaw(s"var ${markerId} = null; var pageFunctions = "+
+    } yield <lift:tail>{Script(JsRaw(s"var ${markerId} = null;var mapInstance = ${MapExamples.map.id}; var pageFunctions = "+
       session.buildRoundtrip(pageFunctions).toJsCmd).cmd)}</lift:tail>) openOr NodeSeq.Empty)
 
     mapDef ++ functions
@@ -83,11 +83,15 @@ class HelloWorld {
       import net.liftweb.json.JsonDSL._
       func.send(JArray(List(
         ("address" -> JString(json.result.formatted_address)) ~
-        ("components" -> JArray(json.result.address_components.map(s => JString(s.long_name)).toList)))))
+        ("components" -> JArray(json.result.address_components.map(s => JString(s.long_name)).toList)) ~
+        ("location" -> ("lat" -> JDouble(json.result.geometry.location.lat)) ~ ("long" -> JDouble(json.result.geometry.location.lng)))
+      )))
     }
     val ter = value.values.toString
     GoogleMapsServicesManager.GetGeolocations(ter, sendDetailsToBrowser)
   }
+
+  //private def setCenter()
 
   val pageFunctions : List[RoundTripInfo] = List("setLocation" -> setLocation _, "findPlaces" -> findPlaces _, "placeDetail" -> getDetails _)
 

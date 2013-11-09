@@ -3,8 +3,6 @@
 <head>
     <meta content="text/html; charset=UTF-8" http-equiv="content-type"/>
     <title>Home</title>
-    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
-
 </head>
 <body class="lift:content_id=main">
 <div id="main" class="lift:surround?with=default;at=content">
@@ -21,13 +19,15 @@
         <button id="setRectangle">Set Rectangle</button>
         <button onclick="pageFunctions.setLocation(null)">Track locations</button>
     </div>
-
+    <h2>Accessing Google Maps Services</h2>
+    Click on them to get the details and click on the address to locate in the map
     <div class='container-fluid' ng-controller="TypeaheadCtrl">
         <div class="span3">
-        <input type="text" ng-model="selected" typeahead-wait-ms="300" typeahead="k for k in getList($viewValue)">
+            <input type="text" ng-model="selected" typeahead-wait-ms="300" typeahead="k for k in getList($viewValue)"
+                   placeholder="Type city or location">
             <ul class="unstyled">
                 <li ng-repeat="res in lista">
-                    <a ng-click="placeDet(res.ref)">{{res.name}}</a>
+                    <a ng-click="placeDet(res.ref)" style="cursor:pointer;">{{res.name}}</a>
                 </li>
             </ul>
         </div>
@@ -35,12 +35,15 @@
             <div class="row-fluid">
                 <div class="span3">
                     <h3>Address</h3>
+
                     <div ng-repeat="d in placedetail">
-                        <span>{{d.address}}</span>
+                        <a ng-click="setOnMap(d.location.lat, d.location.long)"
+                           style="cursor:pointer;">{{d.address}}</a>
                     </div>
                 </div>
                 <div class="span3">
                     <h3>Components</h3>
+
                     <div ng-repeat="d in placedetail">
                         <div ng-repeat="comp in d.components">
                             <span>{{comp}}</span>
@@ -49,13 +52,7 @@
                 </div>
             </div>
         </div>
-
-
-
     </div>
-
-
-
 </div>
 </body>
 </html>

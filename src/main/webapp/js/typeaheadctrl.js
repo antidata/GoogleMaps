@@ -28,4 +28,8 @@ function TypeaheadCtrl($scope) {
       return data;
     });
   };
+
+  $scope.setOnMap = function(lat, long) {
+    mapInstance.setCenter(new google.maps.LatLng(lat,long));
+  }
 }
