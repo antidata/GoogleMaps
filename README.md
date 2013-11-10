@@ -9,14 +9,14 @@ Main classes are :
 * https://github.com/antidata/GoogleMaps/blob/master/src/main/scala/com/github/antidata/GoogleMaps/GoogleMapManager.scala
 * https://github.com/antidata/GoogleMaps/blob/master/src/main/scala/com/github/antidata/GoogleMaps/GoogleMapsServices.scala
 
-and the examples are WIP
+and some examples
 
 * https://github.com/antidata/GoogleMaps/blob/master/src/main/scala/com/github/antidata/GoogleMaps/GoogleMapsExamples.scala
 
 Example Snippet: 
 * https://github.com/antidata/GoogleMaps/blob/master/src/main/scala/com/github/antidata/snippet/HelloWorld.scala
 
-Working example:
+Demo site:
 * http://gmaps.reserbar.cloudbees.net/
 
 Clone: 
