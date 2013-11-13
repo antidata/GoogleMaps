@@ -27,69 +27,26 @@ import net.liftweb.http.js.JsCmd
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.http._
 import com.github.antidata.GoogleMaps._
-import net.liftweb.json.JsonAST.{JDouble, JString, JArray, JValue}
-import com.github.antidata.GoogleMaps.Options
-import com.github.antidata.GoogleMaps.Position
-import com.github.antidata.GoogleMaps.Marker
-import com.github.antidata.GoogleMaps.Rectangle
-import com.github.antidata.GoogleMaps.Listener
-import com.github.antidata.GoogleMaps.LatLngBounds
-import com.github.antidata.GoogleMaps.Location
-import com.github.antidata.GoogleMaps.InfoWindow
-import com.github.antidata.GoogleMaps.Title
-import com.github.antidata.GoogleMaps.Content
 import net.liftweb.http.js.JE.JsRaw
+import com.github.antidata.snippet.roundtrips._
 
-class HelloWorld {
+class HelloWorld extends LocationRoundTrips with ServiceRoundTrips {
   def date: Box[Date] = DependencyFactory.inject[Date] // inject the date
-  lazy val markerId = "followup"
+
   def render() : NodeSeq = {
     val mapDef = (GoogleMapsManager SetMap(MapExamples.map, MapExamples.markers,
       List(Listener(MapExamples.map, EventClick, mapClick _)), "mapInstance"))
 
     val functions = ((for {
       session <- S.session
-    } yield <lift:tail>{Script(JsRaw(s"var ${markerId} = null;var mapInstance = ${MapExamples.map.id}; var pageFunctions = "+
-      session.buildRoundtrip(pageFunctions).toJsCmd).cmd)}</lift:tail>) openOr NodeSeq.Empty)
+    } yield <lift:tail>{Script(
+        JsRaw(s"var ${markerId} = null;" +
+          s"var mapInstance = ${MapExamples.map.id};" +
+          s"var pageFunctions = ${session.buildRoundtrip(getRoundTrips).toJsCmd}").cmd
+      )}</lift:tail>) openOr NodeSeq.Empty)
 
     mapDef ++ functions
   }
-  object followLoc extends RequestVar[Box[FollowLocations]](Empty)
-
-  private def setLocation(value : JValue, func: RoundTripHandlerFunc) {
-    if(followLoc.isEmpty) {
-        val actor = new FollowLocations()
-        followLoc(Full(actor))
-        actor ! NextLocation(MapExamples.followLocations, Empty, MapExamples.map.id, func, markerId)
-    }
-  }
-
-  private def findPlaces(value : JValue, func : RoundTripHandlerFunc) {
-
-    def sendJArrayToBrowser(pred : PredictionsResult) : Unit = {
-      import net.liftweb.json.JsonDSL._
-      func.send(JArray(pred.predictions.map(p => ("name" -> p.description) ~ ("ref" -> p.reference)).toList))
-    }
-
-    val ter = value.values.toString
-    GoogleMapsServicesManager.GetPlaces(ter, sendJArrayToBrowser)
-  }
-
-  private def getDetails(value : JValue, func : RoundTripHandlerFunc) {
-
-    def sendDetailsToBrowser(json : PlaceDetails) : Unit = {
-      import net.liftweb.json.JsonDSL._
-      func.send(JArray(List(
-        ("address" -> JString(json.result.formatted_address)) ~
-        ("components" -> JArray(json.result.address_components.map(s => JString(s.long_name)).toList)) ~
-        ("location" -> ("lat" -> JDouble(json.result.geometry.location.lat)) ~ ("long" -> JDouble(json.result.geometry.location.lng)))
-      )))
-    }
-    val ter = value.values.toString
-    GoogleMapsServicesManager.GetGeolocations(ter, sendDetailsToBrowser)
-  }
-
-  val pageFunctions : List[RoundTripInfo] = List("setLocation" -> setLocation _, "findPlaces" -> findPlaces _, "placeDetail" -> getDetails _)
 
   // Here we get the coordinates of the map where the user has recently clicked
   private def mapClick(s : String) : JsCmd = {
