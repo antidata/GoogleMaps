@@ -15,6 +15,8 @@ and some examples
 
 Example Snippet: 
 * https://github.com/antidata/GoogleMaps/blob/master/src/main/scala/com/github/antidata/snippet/HelloWorld.scala
+* https://github.com/antidata/GoogleMaps/blob/master/src/main/scala/com/github/antidata/snippet/roundtrips/LocationRoundTrip.scala
+* https://github.com/antidata/GoogleMaps/blob/master/src/main/scala/com/github/antidata/snippet/roundtrips/ServiceRoundTrips.scala
 
 Demo site:
 * http://gmaps.reserbar.cloudbees.net/
