@@ -1,6 +1,6 @@
 name := "Lift API for GoogleMaps"
 
-version := "0.5"
+version := "0.6"
 
 organization := "com.github.antidata"
 
