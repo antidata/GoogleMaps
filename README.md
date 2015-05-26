@@ -19,9 +19,6 @@ Example Snippet:
 * https://github.com/antidata/GoogleMaps/blob/master/src/main/scala/com/github/antidata/snippet/roundtrips/ServiceRoundTrips.scala
 * https://github.com/antidata/GoogleMaps/blob/master/src/main/webapp/js/typeaheadctrl.js
 
-Demo site:
-* http://gmaps.reserbar.cloudbees.net/
-
 Clone: 
 * git clone https://github.com/antidata/GoogleMaps.git
 
